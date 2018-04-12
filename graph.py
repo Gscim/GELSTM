@@ -26,10 +26,6 @@ from multiprocessing import cpu_count
 
 logger = logging.getLogger("deepwalk")
 
-
-__author__ = "Bryan Perozzi"
-__email__ = "bperozzi@cs.stonybrook.edu"
-
 LOGFORMAT = "%(asctime).19s %(levelname)s %(filename)s: %(lineno)s %(message)s"
 
 class Graph(defaultdict):
