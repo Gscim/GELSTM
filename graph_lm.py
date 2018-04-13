@@ -85,8 +85,8 @@ class GLMModel(object):
         self._cost = tf.reduce_sum(loss)
         self._final_state = state
 
-            if not is_training:
-          return
+        if not is_training:
+            return
 
         self._lr = tf.Variable(0.0, trainable=False)
         tvars = tf.trainable_variables()
