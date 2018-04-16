@@ -64,9 +64,9 @@ def graph_walk_data(data_path=None):
     G_valid = graph.load_edgelist(valid_path)
     G_test = graph.load_edgelist(test_path)
 
-    train_walks = graph.build_deepwalk_corpus(G_train, list_exclud=None, num_paths=30, path_length=50)
-    valid_walks = graph.build_deepwalk_corpus(G_valid, list_exclud=None, num_paths=30, path_length=50)
-    test_walks = graph.build_deepwalk_corpus(G_test, list_exclud=None, num_paths=30, path_length=50)
+    train_walks = graph.build_deepwalk_corpus(G_train, list_exclud=[], num_paths=30, path_length=50)
+    valid_walks = graph.build_deepwalk_corpus(G_valid, list_exclud=[], num_paths=30, path_length=50)
+    test_walks = graph.build_deepwalk_corpus(G_test, list_exclud=[], num_paths=30, path_length=50)
     vacabulary = len(word2id)
 
     return train_walks, valid_walks, test_walks, vacabulary
