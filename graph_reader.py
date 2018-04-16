@@ -16,7 +16,7 @@ import collections
 import os
 import sys
 import tensorflow as tf 
-
+import numpy as np
 import json
 import graph
 
@@ -78,7 +78,7 @@ def graph_producer(walk_data, batch_size, num_steps, name=None):
         and return tensors that are drawn from these batches
 
         Args:
-            raw_data: one of the ouput of graph_walk_data
+            walk_data: one of the ouput of graph_walk_data
             batch_size: int, the batch size
             num_steps: int, the number of unrolls
             name: the name of this operation
@@ -88,6 +88,7 @@ def graph_producer(walk_data, batch_size, num_steps, name=None):
             of the tuple is the same data time-shifted to the right by one.
     '''
     with tf.name_scope(name, "GraphProducer", [walk_data, batch_size, num_steps]):
+        walk_data = tf.reshape(walk_data, [-1])
         walk_data = tf.convert_to_tensor(walk_data, name="walk_data", dtype=tf.int32)
 
         data_len = tf.size(walk_data)

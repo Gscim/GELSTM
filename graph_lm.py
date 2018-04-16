@@ -219,7 +219,7 @@ class TestConfig(object):
     keep_prob = 0.5
     lr_decay = 0.8
     batch_size = 20
-    vocab_size = 10000
+    vocab_size = 20000
     rnn_mode = BLOCK
 
 def run_epoch(session, model, eval_op=None, verbose=False):
@@ -284,24 +284,24 @@ def main(_):
     eval_config.num_steps = 1
 
     with tf.Graph().as_default():
-        iniitalizer = tf.random_uniform_initializer(-config.init_scale, config.init_scale)
+        initializer = tf.random_uniform_initializer(-config.init_scale, config.init_scale)
 
         with tf.name_scope("Train"):
             train_input = GraphInput(config=config, data=train_data, name="TrainInput")
-            with tf.variable_scope("Model",reuse=None,iniitalizer=iniitalizer):
+            with tf.variable_scope("Model",reuse=None,initializer=initializer):
                 m = GLMModel(is_training=True, config=config, input_=train_input)
             tf.summary.scalar("Training Loss", m.cost)
             tf.summary.scalar("Learning Rate", m.lr)
 
         with tf.name_scope("Valid"):
             valid_input = GraphInput(config=config, data=valid_data, name="ValidInput")
-            with tf.variable_scope("Model", reuse=True, iniitalizer=iniitalizer):
+            with tf.variable_scope("Model", reuse=True, initializer=initializer):
                 mvalid = GLMModel(is_training=False, config=config, input_=valid_input)
             tf.summary.scalar("Validation Loss", mvalid.cost)
 
         with tf.name_scope("Test"):
             test_input = GraphInput(config=eval_config, data=test_data, name="TestInput")
-            with tf.variable_scope("Model", reuse=True, iniitalizer=iniitalizer):
+            with tf.variable_scope("Model", reuse=True, initializer=initializer):
                 mtest = GLMModel(is_training=False, config=eval_config, input_=test_input)
         
         models = {"Train": m, "Valid": mvalid, "Test": mtest}
