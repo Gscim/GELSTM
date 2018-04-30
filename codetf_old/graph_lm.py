@@ -60,7 +60,7 @@ class GLMModel(object):
             inputs = tf.nn.embedding_lookup(embedding, input_.input_data)
         
         if is_training and config.keep_prob < 1:
-            inputs =tf.dropout(inputs, config.keep_prob)
+            inputs =tf.nn.dropout(inputs, config.keep_prob)
 
         output, state = self._build_rnn_graph(inputs, config, is_training)
 
