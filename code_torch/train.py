@@ -53,5 +53,4 @@ for epoch in range(train_conf["num_epoch"]):
 
 with torch.no_grad():
     print("exporting embedding to file \"lstm_trained.embedding\"")
-    torch.save(model.ne_embeds, train_conf["data_path"] + "torch_nn.embedding")
-    
+    torch.save(model.ne_embeds, train_conf["data_path"] + "torch_nn.embedding")    
