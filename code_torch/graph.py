@@ -153,7 +153,7 @@ class Graph(defaultdict):
     return path
 
 # TODO add build_walks in here
-
+'''
 def build_deepwalk_corpus(G, list_exclud, num_paths, path_length, alpha=0,
                       rand=random.Random(0)):
   walks = []
@@ -171,6 +171,21 @@ def build_deepwalk_corpus(G, list_exclud, num_paths, path_length, alpha=0,
     for w in sent:
       walks_.append(w)
   return walks_
+'''
+
+def build_deepwalk_corpus(G, list_exclud, num_paths, path_length, alpha=0,
+                      rand=random.Random(0)):
+  walks = []
+
+  nodes = list(G.nodes())
+  nodes = [x for x in nodes if x not in list_exclud]
+  
+  for cnt in range(num_paths):
+    rand.shuffle(nodes)
+    for node in nodes:
+      walks.append(G.random_walk(path_length, rand=rand, alpha=alpha, start=node))
+      
+  return walks
 
 def build_deepwalk_corpus_iter(G, list_exclud, num_paths, path_length, alpha=0,
                       rand=random.Random(0)):
