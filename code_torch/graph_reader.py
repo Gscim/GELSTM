@@ -25,7 +25,7 @@ def _build_vocab(filename):
     '''
     sort nodes and relations together by frequency
     '''
-    filedata = read_ent_rel(filename)
+    filedata = _read_ent_rel(filename)
     counter = collections.Counter(filedata)
     count_pairs = sorted(counter.items(), key=lambda x:(x[-1], x[0]))
 
@@ -38,7 +38,7 @@ def _graph_to_edgelist(in_filename, out_filename, word2id):
     with open(in_filename, 'r') as in_file, open(out_filename, 'w') as out_file:
         for line in in_file:
             obj, pred, subj = line.strip().split()[:3]
-            print(word2id[obj], word2id[subj], word2id[pred], file=outfile)
+            print(word2id[obj], word2id[subj], word2id[pred], file=out_file)
 
 def graph_walk_data(data_path=None):
     p_train_path = os.path.join(data_path, "train.txt")
@@ -48,13 +48,13 @@ def graph_walk_data(data_path=None):
     _graph_to_edgelist(p_train_path, train_path, word2id)
 
     print("export word2id file....")
-    json.dum(word2id, open(os.path.join(data_path, "word2id.json"), 'w'))
+    json.dump(word2id, open(os.path.join(data_path, "word2id.json"), 'w'))
     print("word2id file exported.")
 
     G_train = graph.load_edgelist(train_path)
-    train_walks = graph.build_deepwalk_corpus(G_train, list_exclude=[], num_paths=RWConf["num_paths"], path_length=RWConf["path_length"])
+    train_walks = graph.build_deepwalk_corpus(G_train, list_exclud=[], num_paths=RWConf["num_paths"], path_length=RWConf["path_length"])
 
-    vacabulary = len(word2id)
+    vocabulary = len(word2id)
 
     return train_walks, vocabulary
 

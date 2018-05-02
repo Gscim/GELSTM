@@ -47,7 +47,7 @@ class GLNet(nn.Module):
     
     def loss_def(self, sequence_):
         # to match the target with output
-        poss_out = get_poss_of_out(sequence_)[:-1]
+        poss_out = self.get_poss_of_out(sequence_)[:-1]
         seq = sequence_.type(torch.FloatTensor)
         target = sequence_[1:]
 

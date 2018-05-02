@@ -16,10 +16,10 @@ import time
 train_conf = {
     "data_path": "../datasrc",
     "num_paths": 15, 
-    "path_length": 20
-    "embedding_dim": 64
-    "hidden_dim": 128
-    "num_epoch": 100
+    "path_length": 20,
+    "embedding_dim": 64,
+    "hidden_dim": 128,
+    "num_epoch": 100,
     "learning_rate": 0.01
 }
 
@@ -45,7 +45,7 @@ for epoch in range(train_conf["num_epoch"]):
 
         loss = model.loss_def(in_walk)
 
-        loss.backward()
+        loss.backward(retain_graph=True)
         optimizer.step()
 
     end_ = time.time()
