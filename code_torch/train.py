@@ -12,13 +12,19 @@ import torch.autograd as autograd
 from graph_lm import GLNet
 import graph_reader as reader
 import time
+import logging
+
+logging.basicConfig(level=logging.INFO, 
+                    filename='log.txt', 
+                    filemode='a', 
+                    format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s') 
 
 train_conf = {
     "data_path": "../datasrc",
     "num_paths": 15, 
     "path_length": 20,
-    "embedding_dim": 64,
-    "hidden_dim": 128,
+    "embedding_dim": 128,
+    "hidden_dim": 256,
     "num_epoch": 100,
     "learning_rate": 0.01
 }
@@ -33,6 +39,8 @@ optimizer = optim.SGD(model.parameters(), lr=0.01, weight_decay=1e-4)
 
 print(train_conf)
 print("running model with train_conf")
+logging.info(train_conf)
+logging.info("running model with train_conf")
 
 for epoch in range(train_conf["num_epoch"]):
     start_ = time.time()
@@ -50,7 +58,9 @@ for epoch in range(train_conf["num_epoch"]):
 
     end_ = time.time()
     print("epoch", epoch, "cost time", (end_ - start_), "seconds")
+    logging.info("epoch {} cost time {} seconds".format(epoch, (end_ - start_)))
 
 with torch.no_grad():
     print("exporting embedding to file \"lstm_trained.embedding\"")
+    logging.info("exporting embedding to file \"lstm_trained.embedding\"")
     torch.save(model.ne_embeds, train_conf["data_path"] + "torch_nn.embedding")    
