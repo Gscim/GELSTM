@@ -8,6 +8,7 @@ from __future__ import print_function
 
 import torch
 import torch.optim as optim
+import torch.nn as nn
 import torch.autograd as autograd
 from graph_lm import GLNet
 import graph_reader as reader
@@ -29,12 +30,13 @@ train_conf = {
     "learning_rate": 0.01
 }
 
+loss_func = nn.CrossEntropyLoss().cuda()
+
 # make the curpus using random walk algorithm
 # get the vocab size
-
 walks_data, vocab_size = reader.graph_walk_data(train_conf["data_path"])
 
-model = GLNet(vocab_size, train_conf["embedding_dim"], train_conf["hidden_dim"])
+model = GLNet(vocab_size, train_conf["embedding_dim"], train_conf["hidden_dim"]).cuda()
 optimizer = optim.SGD(model.parameters(), lr=0.01, weight_decay=1e-4)
 
 print(train_conf)
@@ -42,19 +44,42 @@ print("running model with train_conf")
 logging.info(train_conf)
 logging.info("running model with train_conf")
 
+#code blow not work because the walks_data is not aligned
+#walks_data = torch.tensor(walks_data, dtype=torch.long).cuda()
+with torch.no_grad():
+    walks_tensor = []
+    for walk_ in walks_data:
+        walks_tensor.append(torch.tensor(walk_, dtype=torch.long).cuda())
+
+logging.info("num of walk seqs {}".format(len(walks_tensor)))
+logging.info("starting running epochs")
 for epoch in range(train_conf["num_epoch"]):
     start_ = time.time()
-
-    for walk_seq in walks_data:
+    seqn = 0
+    for in_walk in walks_tensor:
         # clear the grad before each seq
+        if len(in_walk) <= 1:
+            continue
+
         model.zero_grad()
 
-        in_walk = torch.tensor(walk_seq, dtype=torch.long)
+        #logging.info("len = {}".format(len(in_walk)))
+        #loss = model.loss_def(in_walk)
 
-        loss = model.loss_def(in_walk)
+        _poss_out = model(in_walk)[:-1]
+        _target = in_walk[1:]
+        loss = loss_func(_poss_out, _target)
 
         loss.backward(retain_graph=True)
         optimizer.step()
+
+        #del loss
+        #logging.info("seq {}".format(seqn))
+        with torch.no_grad():
+            if seqn % 1000 == 0:
+                logging.info("seq {}".format(seqn))
+            seqn = seqn + 1
+        
 
     end_ = time.time()
     print("epoch", epoch, "cost time", (end_ - start_), "seconds")
