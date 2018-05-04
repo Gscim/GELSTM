@@ -14,7 +14,7 @@ from graph_lm import GLNet
 import graph_reader as reader
 import time
 import logging
-
+import random
 logging.basicConfig(level=logging.INFO, 
                     filename=str(time.time()) + '.log', 
                     filemode='a', 
@@ -26,7 +26,7 @@ train_conf = {
     "path_length": 20,
     "embedding_dim": 128,
     "hidden_dim": 256,
-    "num_epoch": 1,
+    "num_epoch": 300,
     "learning_rate": 0.01
 }
 
@@ -58,7 +58,9 @@ logging.info("starting running epochs")
 for epoch in range(train_conf["num_epoch"]):
     start_ = time.time()
     seqn = 0
-    for in_walk in walks_data[:60001]:
+    random.shuffle(walks_data)
+    etloss = 0.0
+    for in_walk in walks_data:
         # clear the grad before each seq
         if len(in_walk) <= 1:
             continue
@@ -73,23 +75,27 @@ for epoch in range(train_conf["num_epoch"]):
         _target = in_walk[1:]
         loss = loss_func(_poss_out, _target)
 
+        etloss = etloss + loss.item()
+
         loss.backward(retain_graph=True)
         optimizer.step()
 
         #del loss
         #logging.info("seq {}".format(seqn))
+        '''
         with torch.no_grad():
-            if seqn % 100 == 0:
-                end_ = time.time()
-                logging.info("100 cost time {}".format(end_-start_))
-                start_ = end_
-                logging.info("seq {}".format(seqn))
+            if seqn % 1000 == 0:
+                #end_ = time.time()
+                #logging.info("100 cost time {}".format(end_-start_))
+                #start_ = end_
+                logging.info("seq {} finished".format(seqn))
             seqn = seqn + 1
+        '''
         
-
-    #end_ = time.time()
+    end_ = time.time()
     #print("epoch", epoch, "cost time", (end_ - start_), "seconds")
     logging.info("epoch {} cost time {} seconds".format(epoch, (end_ - start_)))
+    logging.info("loss for epoch {} is {}".format(epoch, etloss))
 
 with torch.no_grad():
     #print("exporting embedding to file \"lstm_trained.embedding\"")
