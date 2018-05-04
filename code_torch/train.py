@@ -16,7 +16,7 @@ import time
 import logging
 
 logging.basicConfig(level=logging.INFO, 
-                    filename='log.txt', 
+                    filename=str(time.time()) + '.log', 
                     filemode='a', 
                     format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s') 
 
@@ -26,7 +26,7 @@ train_conf = {
     "path_length": 20,
     "embedding_dim": 128,
     "hidden_dim": 256,
-    "num_epoch": 100,
+    "num_epoch": 1,
     "learning_rate": 0.01
 }
 
@@ -39,28 +39,31 @@ walks_data, vocab_size = reader.graph_walk_data(train_conf["data_path"])
 model = GLNet(vocab_size, train_conf["embedding_dim"], train_conf["hidden_dim"]).cuda()
 optimizer = optim.SGD(model.parameters(), lr=0.01, weight_decay=1e-4)
 
-print(train_conf)
-print("running model with train_conf")
+#print(train_conf)
+#print("running model with train_conf")
 logging.info(train_conf)
 logging.info("running model with train_conf")
 
 #code blow not work because the walks_data is not aligned
 #walks_data = torch.tensor(walks_data, dtype=torch.long).cuda()
+'''
 with torch.no_grad():
     walks_tensor = []
     for walk_ in walks_data:
         walks_tensor.append(torch.tensor(walk_, dtype=torch.long).cuda())
+'''
 
-logging.info("num of walk seqs {}".format(len(walks_tensor)))
+logging.info("num of walk seqs {}".format(len(walks_data)))
 logging.info("starting running epochs")
 for epoch in range(train_conf["num_epoch"]):
     start_ = time.time()
     seqn = 0
-    for in_walk in walks_tensor:
+    for in_walk in walks_data[:60001]:
         # clear the grad before each seq
         if len(in_walk) <= 1:
             continue
 
+        in_walk = torch.tensor(in_walk, dtype=torch.long).cuda()
         model.zero_grad()
 
         #logging.info("len = {}".format(len(in_walk)))
@@ -76,16 +79,19 @@ for epoch in range(train_conf["num_epoch"]):
         #del loss
         #logging.info("seq {}".format(seqn))
         with torch.no_grad():
-            if seqn % 1000 == 0:
+            if seqn % 100 == 0:
+                end_ = time.time()
+                logging.info("100 cost time {}".format(end_-start_))
+                start_ = end_
                 logging.info("seq {}".format(seqn))
             seqn = seqn + 1
         
 
-    end_ = time.time()
-    print("epoch", epoch, "cost time", (end_ - start_), "seconds")
+    #end_ = time.time()
+    #print("epoch", epoch, "cost time", (end_ - start_), "seconds")
     logging.info("epoch {} cost time {} seconds".format(epoch, (end_ - start_)))
 
 with torch.no_grad():
-    print("exporting embedding to file \"lstm_trained.embedding\"")
+    #print("exporting embedding to file \"lstm_trained.embedding\"")
     logging.info("exporting embedding to file \"lstm_trained.embedding\"")
     torch.save(model.ne_embeds, train_conf["data_path"] + "torch_nn.embedding")    

@@ -29,10 +29,12 @@ class GLNet(nn.Module):
         self.hidden = self.init_hidden()
         # add an linear at the output, out a shape of (sequence, vocab_size)
         self.linear_out = nn.Linear(hidden_dim, vocab_size).cuda()
+        self.softmax = nn.Softmax(dim=1).cuda()
 
     def init_hidden(self):
         return (torch.randn(2, 1, self.hidden_dim // 2).cuda(), torch.randn(2, 1, self.hidden_dim // 2).cuda())
 
+    '''
     def get_poss_of_out(self, sequence_):
         seqlen = len(sequence_)
         embeds = self.ne_embeds(sequence_).view(len(sequence_), 1, -1)
@@ -56,7 +58,8 @@ class GLNet(nn.Module):
         loss_ = cross_entropy_loss(poss_out, target)
 
         return loss_
-
+    '''
+    
     def forward(self, sequence_):
         seqlen = len(sequence_)
         embeds = self.ne_embeds(sequence_).view(len(sequence_), 1, -1)
@@ -67,8 +70,8 @@ class GLNet(nn.Module):
         
         #lstm_poss = lstm_poss.view(seqlen, -1)
 
-        softmax = nn.Softmax(dim=1).cuda()
-        lstm_poss = softmax(lstm_poss)
+        #softmax = nn.Softmax(dim=1).cuda()
+        lstm_poss = self.softmax(lstm_poss)
 
         return lstm_poss
 
