@@ -36,6 +36,8 @@ loss_func = nn.CrossEntropyLoss().cuda()
 # get the vocab size
 walks_data, vocab_size = reader.graph_walk_data(train_conf["data_path"])
 
+logging.info("vocab size {}".format(vocab_size))
+
 model = GLNet(vocab_size, train_conf["embedding_dim"], train_conf["hidden_dim"]).cuda()
 optimizer = optim.SGD(model.parameters(), lr=0.01, weight_decay=1e-4)
 
